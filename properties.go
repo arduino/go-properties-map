@@ -181,7 +181,7 @@ func MergeMapsOfProperties(target map[string]Map, sources ...map[string]Map) map
 	return target
 }
 
-func DeleteUnexpandedPropsFromString(str string) (string, error) {
+func DeleteUnexpandedPropsFromString(str string) string {
 	rxp := regexp.MustCompile("\\{.+?\\}")
-	return rxp.ReplaceAllString(str, ""), nil
+	return rxp.ReplaceAllString(str, "")
 }
