@@ -27,6 +27,39 @@
  * the GNU General Public License.
  */
 
+/*
+Package properties is a library for handling maps of hierarchical properties.
+This library is mainly used in the Arduino platform software to handle
+configurations made of key/value pairs stored in files with an INI like
+syntax, for example:
+
+ ...
+ uno.name=Arduino/Genuino Uno
+ uno.upload.tool=avrdude
+ uno.upload.protocol=arduino
+ uno.upload.maximum_size=32256
+ uno.upload.maximum_data_size=2048
+ uno.upload.speed=115200
+ uno.build.mcu=atmega328p
+ uno.build.f_cpu=16000000L
+ uno.build.board=AVR_UNO
+ uno.build.core=arduino
+ uno.build.variant=standard
+ diecimila.name=Arduino Duemilanove or Diecimila
+ diecimila.upload.tool=avrdude
+ diecimila.upload.protocol=arduino
+ diecimila.build.f_cpu=16000000L
+ diecimila.build.board=AVR_DUEMILANOVE
+ diecimila.build.core=arduino
+ diecimila.build.variant=standard
+ ...
+
+This library has methods to parse this kind of files into a Map object.
+
+The Map object has many helper methods to accomplish some common operation
+on this kind of data like cloning, merging, comparing and also extracting
+a submap or generating a map-of-submaps from the first "level" of the hierarchy.
+*/
 package properties
 
 import (
@@ -55,6 +88,7 @@ func init() {
 	}
 }
 
+// Load reads a properties file and makes a Map out of it.
 func Load(filepath string) (Map, error) {
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
@@ -76,6 +110,8 @@ func Load(filepath string) (Map, error) {
 	return properties, nil
 }
 
+// LoadFromSlice reads a properties file from an array of string
+// and makes a Map out of it
 func LoadFromSlice(lines []string) (Map, error) {
 	properties := make(Map)
 
@@ -109,6 +145,8 @@ func (m Map) parseLine(line string) error {
 	return nil
 }
 
+// SafeLoad is like Load, except that it returns an empty Map if the specified
+// file doesn't exists
 func SafeLoad(filepath string) (Map, error) {
 	_, err := os.Stat(filepath)
 	if os.IsNotExist(err) {
@@ -122,6 +160,38 @@ func SafeLoad(filepath string) (Map, error) {
 	return properties, nil
 }
 
+// FirstLevelOf generates a map-of-Maps using the first level of the hierarchy
+// of the current Map. For example the following Map:
+//
+//  properties.Map{
+//    "uno.name": "Arduino/Genuino Uno",
+//    "uno.upload.tool": "avrdude",
+//    "uno.upload.protocol": "arduino",
+//    "uno.upload.maximum_size": "32256",
+//    "diecimila.name": "Arduino Duemilanove or Diecimila",
+//    "diecimila.upload.tool": "avrdude",
+//    "diecimila.upload.protocol": "arduino",
+//    "diecimila.bootloader.tool": "avrdude",
+//    "diecimila.bootloader.low_fuses": "0xFF",
+//  }
+//
+// is transformed into the following map-of-Maps:
+//
+//  map[string]Map{
+//    "uno" : properties.Map{
+//      "name": "Arduino/Genuino Uno",
+//      "upload.tool": "avrdude",
+//      "upload.protocol": "arduino",
+//      "upload.maximum_size": "32256",
+//    },
+//    "diecimila" : properties.Map{
+//      "name=Arduino Duemilanove or Diecimila
+//      "upload.tool": "avrdude",
+//      "upload.protocol": "arduino",
+//      "bootloader.tool": "avrdude",
+//      "bootloader.low_fuses": "0xFF",
+//    }
+//  }
 func (m Map) FirstLevelOf() map[string]Map {
 	newMap := make(map[string]Map)
 	for key, value := range m {
@@ -137,10 +207,42 @@ func (m Map) FirstLevelOf() map[string]Map {
 	return newMap
 }
 
+// SubTree extracts a sub Map from an existing map using the first level
+// of the keys hierarchy as selector.
+// For example the following Map:
+//
+//  properties.Map{
+//    "uno.name": "Arduino/Genuino Uno",
+//    "uno.upload.tool": "avrdude",
+//    "uno.upload.protocol": "arduino",
+//    "uno.upload.maximum_size": "32256",
+//    "diecimila.name": "Arduino Duemilanove or Diecimila",
+//    "diecimila.upload.tool": "avrdude",
+//    "diecimila.upload.protocol": "arduino",
+//    "diecimila.bootloader.tool": "avrdude",
+//    "diecimila.bootloader.low_fuses": "0xFF",
+//  }
+//
+// after calling SubTree("uno") will be transformed in:
+//
+//  properties.Map{
+//    "name": "Arduino/Genuino Uno",
+//    "upload.tool": "avrdude",
+//    "upload.protocol": "arduino",
+//    "upload.maximum_size": "32256",
+//  },
 func (m Map) SubTree(key string) Map {
 	return m.FirstLevelOf()[key]
 }
 
+// ExpandPropsInString use the Map to replace values into a format string.
+// The format string should contains markers between braces, for example:
+//
+//  "The selected upload protocol is {upload.protocol}."
+//
+// Each marker is replaced by the corresponding value of the Map.
+// The values in the Map may contains other markers, they are evaluated
+// recursively.
 func (m Map) ExpandPropsInString(str string) string {
 	replaced := true
 	for i := 0; i < 10 && replaced; i++ {
@@ -154,6 +256,8 @@ func (m Map) ExpandPropsInString(str string) string {
 	return str
 }
 
+// Merge merges a Map into this one. Each key/value of the merged Maps replaces
+// the key/value present in the original Map.
 func (m Map) Merge(sources ...Map) Map {
 	for _, source := range sources {
 		for key, value := range source {
@@ -163,16 +267,21 @@ func (m Map) Merge(sources ...Map) Map {
 	return m
 }
 
+// Clone makes a copy of the Map
 func (m Map) Clone() Map {
 	clone := make(Map)
 	clone.Merge(m)
 	return clone
 }
 
+// Equals returns true if the current Map contains the same key/value pairs of
+// the Map passed as argument.
 func (m Map) Equals(other Map) bool {
 	return reflect.DeepEqual(m, other)
 }
 
+// MergeMapsOfProperties merge the map-of-Maps (obtained from the method FirstLevelOf()) into the
+// target map-of-Maps.
 func MergeMapsOfProperties(target map[string]Map, sources ...map[string]Map) map[string]Map {
 	for _, source := range sources {
 		for key, value := range source {
@@ -182,6 +291,8 @@ func MergeMapsOfProperties(target map[string]Map, sources ...map[string]Map) map
 	return target
 }
 
+// DeleteUnexpandedPropsFromString removes all the brace markers "{xxx}" that are not expanded
+// into a value using the Map.ExpandPropsInString() method.
 func DeleteUnexpandedPropsFromString(str string) string {
 	rxp := regexp.MustCompile("\\{.+?\\}")
 	return rxp.ReplaceAllString(str, "")
