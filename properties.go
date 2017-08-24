@@ -68,7 +68,7 @@ func Load(filepath string) (Map, error) {
 	properties := make(Map)
 
 	for lineNum, line := range strings.Split(text, "\n") {
-		if err := properties.loadSingleLine(line); err != nil {
+		if err := properties.parseLine(line); err != nil {
 			return nil, fmt.Errorf("Error reading file (%s:%d): %s", filepath, lineNum, err)
 		}
 	}
@@ -80,7 +80,7 @@ func LoadFromSlice(lines []string) (Map, error) {
 	properties := make(Map)
 
 	for lineNum, line := range lines {
-		if err := properties.loadSingleLine(line); err != nil {
+		if err := properties.parseLine(line); err != nil {
 			return nil, fmt.Errorf("Error reading from slice (index:%d): %s", lineNum, err)
 		}
 	}
@@ -88,9 +88,10 @@ func LoadFromSlice(lines []string) (Map, error) {
 	return properties, nil
 }
 
-func (properties Map) loadSingleLine(line string) error {
+func (m Map) parseLine(line string) error {
 	line = strings.TrimSpace(line)
 
+	// Skip empty lines or comments
 	if len(line) == 0 || line[0] == '#' {
 		return nil
 	}
@@ -103,7 +104,7 @@ func (properties Map) loadSingleLine(line string) error {
 	value := strings.TrimSpace(lineParts[1])
 
 	key = strings.Replace(key, "."+osSuffix, "", 1)
-	properties[key] = value
+	m[key] = value
 
 	return nil
 }
