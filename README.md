@@ -1,4 +1,6 @@
 
+[![GoDoc](https://godoc.org/github.com/arduino/go-properties-map?status.svg)](https://godoc.org/github.com/arduino/go-properties-map)
+
 Package `properties` is a library for handling maps of hierarchical properties.  
 
 This library is mainly used in the Arduino platform software to handle
