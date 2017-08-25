@@ -100,8 +100,7 @@ func TestDeleteUnexpandedPropsFromString(t *testing.T) {
 	str := "{key1} == {key2} == {key3} == true"
 
 	str = p.ExpandPropsInString(str)
-	str, err := DeleteUnexpandedPropsFromString(str)
-	require.NoError(t, err)
+	str = DeleteUnexpandedPropsFromString(str)
 	require.Equal(t, "42 == 42 ==  == true", str)
 }
 
@@ -112,8 +111,7 @@ func TestDeleteUnexpandedPropsFromString2(t *testing.T) {
 	str := "{key1} == {key2} == {key3} == true"
 
 	str = p.ExpandPropsInString(str)
-	str, err := DeleteUnexpandedPropsFromString(str)
-	require.NoError(t, err)
+	str = DeleteUnexpandedPropsFromString(str)
 	require.Equal(t, " == 42 ==  == true", str)
 }
 
