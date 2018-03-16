@@ -129,6 +129,24 @@ func TestPropertiesRedBeearLabBoardsTxt(t *testing.T) {
 	require.Equal(t, "arduino:arduino", ethernet["build.core"])
 }
 
+func TestSubTreeForMultipleDots(t *testing.T) {
+	p := Map{
+		"root.lev1.prop":  "hi",
+		"root.lev1.prop2": "how",
+		"root.lev1.prop3": "are",
+		"root.lev1.prop4": "you",
+		"root.lev1":       "A",
+	}
+
+	lev1 := p.SubTree("root.lev1")
+	require.EqualValues(t, Map{
+		"prop4": "you",
+		"prop":  "hi",
+		"prop2": "how",
+		"prop3": "are",
+	}, lev1)
+}
+
 func TestPropertiesBroken(t *testing.T) {
 	_, err := Load(filepath.Join("testdata", "broken.txt"))
 
