@@ -232,8 +232,16 @@ func (m Map) FirstLevelOf() map[string]Map {
 //    "upload.protocol": "arduino",
 //    "upload.maximum_size": "32256",
 //  },
-func (m Map) SubTree(key string) Map {
-	return m.FirstLevelOf()[key]
+func (m Map) SubTree(rootKey string) Map {
+	rootKey += "."
+	newMap := Map{}
+	for key, value := range m {
+		if !strings.HasPrefix(key, rootKey) {
+			continue
+		}
+		newMap[key[len(rootKey):]] = value
+	}
+	return newMap
 }
 
 // ExpandPropsInString use the Map to replace values into a format string.
