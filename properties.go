@@ -69,6 +69,7 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
+	"sort"
 	"strings"
 )
 
@@ -296,4 +297,19 @@ func MergeMapsOfProperties(target map[string]Map, sources ...map[string]Map) map
 func DeleteUnexpandedPropsFromString(str string) string {
 	rxp := regexp.MustCompile("\\{.+?\\}")
 	return rxp.ReplaceAllString(str, "")
+}
+
+// Dump returns a representation of the map in golang source format
+func (m Map) Dump() string {
+	res := "properties.Map{\n"
+	keys := []string{}
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		res += fmt.Sprintf("  \"%s\": \"%s\",\n", strings.Replace(k, `"`, `\"`, -1), strings.Replace(m[k], `"`, `\"`, -1))
+	}
+	res += "}"
+	return res
 }
