@@ -251,16 +251,17 @@ func (m Map) SubTree(rootKey string) Map {
 //
 // Each marker is replaced by the corresponding value of the Map.
 // The values in the Map may contains other markers, they are evaluated
-// recursively.
+// recursively up to 10 times.
 func (m Map) ExpandPropsInString(str string) string {
-	replaced := true
-	for i := 0; i < 10 && replaced; i++ {
-		replaced = false
+	for i := 0; i < 10; i++ {
+		newStr := str
 		for key, value := range m {
-			newStr := strings.Replace(str, "{"+key+"}", value, -1)
-			replaced = replaced || str != newStr
-			str = newStr
+			newStr = strings.Replace(newStr, "{"+key+"}", value, -1)
 		}
+		if str == newStr {
+			break
+		}
+		str = newStr
 	}
 	return str
 }
