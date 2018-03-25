@@ -59,6 +59,9 @@ This library has methods to parse this kind of files into a Map object.
 The Map object has many helper methods to accomplish some common operation
 on this kind of data like cloning, merging, comparing and also extracting
 a submap or generating a map-of-submaps from the first "level" of the hierarchy.
+
+On the Arduino platform the properties are used to populate command line recipes
+so there are some methods to help this task like SplitQuotedString or ExpandPropsInString.
 */
 package properties
 
