@@ -152,3 +152,22 @@ func TestPropertiesBroken(t *testing.T) {
 
 	require.Error(t, err)
 }
+
+func TestGetSetBoolean(t *testing.T) {
+	m := Map{
+		"a": "true",
+		"b": "false",
+		"c": "hello",
+	}
+	m.SetBoolean("e", true)
+	m.SetBoolean("f", false)
+
+	require.True(t, m.GetBoolean("a"))
+	require.False(t, m.GetBoolean("b"))
+	require.False(t, m.GetBoolean("c"))
+	require.False(t, m.GetBoolean("d"))
+	require.True(t, m.GetBoolean("e"))
+	require.False(t, m.GetBoolean("f"))
+	require.Equal(t, "true", m["e"])
+	require.Equal(t, "false", m["f"])
+}
