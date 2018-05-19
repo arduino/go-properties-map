@@ -293,23 +293,6 @@ func (m Map) Equals(other Map) bool {
 	return reflect.DeepEqual(m, other)
 }
 
-// GetBoolean returns true if the map contains the specified key and the value
-// equals to the string "true", in any other case returns false.
-func (m Map) GetBoolean(key string) bool {
-	value, ok := m[key]
-	return ok && value == "true"
-}
-
-// SetBoolean sets the specified key to the string "true" of "false" if the value
-// is respectively true or false.
-func (m Map) SetBoolean(key string, value bool) {
-	if value {
-		m[key] = "true"
-	} else {
-		m[key] = "false"
-	}
-}
-
 // MergeMapsOfProperties merge the map-of-Maps (obtained from the method FirstLevelOf()) into the
 // target map-of-Maps.
 func MergeMapsOfProperties(target map[string]Map, sources ...map[string]Map) map[string]Map {
