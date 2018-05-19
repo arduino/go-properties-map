@@ -36,7 +36,7 @@ func (m Map) GetBoolean(key string) bool {
 	return ok && value == "true"
 }
 
-// SetBoolean sets the specified key to the string "true" of "false" if the value
+// SetBoolean sets the specified key to the string "true" or "false" if the value
 // is respectively true or false.
 func (m Map) SetBoolean(key string, value bool) {
 	if value {
