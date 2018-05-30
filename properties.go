@@ -74,6 +74,8 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+
+	"github.com/arduino/go-paths-helper"
 )
 
 // Map is a container of properties
@@ -112,6 +114,11 @@ func Load(filepath string) (Map, error) {
 	}
 
 	return properties, nil
+}
+
+// LoadFromPath reads a properties file and makes a Map out of it.
+func LoadFromPath(path *paths.Path) (Map, error) {
+	return Load(path.String())
 }
 
 // LoadFromSlice reads a properties file from an array of string
