@@ -298,6 +298,18 @@ func (m Map) Keys() []string {
 	return keys
 }
 
+// Values returns an array of the values contained in the Map. Duplicated
+// values are repeated in the list accordingly.
+func (m Map) Values() []string {
+	values := make([]string, len(m))
+	i := 0
+	for _, value := range m {
+		values[i] = value
+		i++
+	}
+	return values
+}
+
 // Clone makes a copy of the Map
 func (m Map) Clone() Map {
 	clone := make(Map)

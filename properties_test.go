@@ -33,6 +33,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -178,6 +179,14 @@ func TestKeysMethod(t *testing.T) {
 		"k1":    "value",
 		"k2":    "othervalue",
 		"k3.k4": "anothevalue",
+		"k5":    "value",
 	}
-	require.Equal(t, "[k1 k2 k3.k4]", fmt.Sprintf("%s", m.Keys()))
+
+	k := m.Keys()
+	sort.Strings(k)
+	require.Equal(t, "[k1 k2 k3.k4 k5]", fmt.Sprintf("%s", k))
+
+	v := m.Values()
+	sort.Strings(v)
+	require.Equal(t, "[anothevalue othervalue value value]", fmt.Sprintf("%s", v))
 }
