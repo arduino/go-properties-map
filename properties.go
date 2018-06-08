@@ -287,6 +287,17 @@ func (m Map) Merge(sources ...Map) Map {
 	return m
 }
 
+// Keys returns an array of the keys contained in the Map
+func (m Map) Keys() []string {
+	keys := make([]string, len(m))
+	i := 0
+	for key := range m {
+		keys[i] = key
+		i++
+	}
+	return keys
+}
+
 // Clone makes a copy of the Map
 func (m Map) Clone() Map {
 	clone := make(Map)

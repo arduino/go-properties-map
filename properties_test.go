@@ -30,6 +30,7 @@
 package properties
 
 import (
+	"fmt"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -170,4 +171,13 @@ func TestGetSetBoolean(t *testing.T) {
 	require.False(t, m.GetBoolean("f"))
 	require.Equal(t, "true", m["e"])
 	require.Equal(t, "false", m["f"])
+}
+
+func TestKeysMethod(t *testing.T) {
+	m := Map{
+		"k1":    "value",
+		"k2":    "othervalue",
+		"k3.k4": "anothevalue",
+	}
+	require.Equal(t, "[k1 k2 k3.k4]", fmt.Sprintf("%s", m.Keys()))
 }
