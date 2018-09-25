@@ -44,12 +44,12 @@ func TestPropertiesBoardsTxt(t *testing.T) {
 
 	require.NoError(t, err)
 
-	require.Equal(t, "Processor", p["menu.cpu"])
-	require.Equal(t, "32256", p["ethernet.upload.maximum_size"])
-	require.Equal(t, "{build.usb_flags}", p["robotMotor.build.extra_flags"])
+	require.Equal(t, "Processor", p.Get("menu.cpu"))
+	require.Equal(t, "32256", p.Get("ethernet.upload.maximum_size"))
+	require.Equal(t, "{build.usb_flags}", p.Get("robotMotor.build.extra_flags"))
 
 	ethernet := p.SubTree("ethernet")
-	require.Equal(t, "Arduino Ethernet", ethernet["name"])
+	require.Equal(t, "Arduino Ethernet", ethernet.Get("name"))
 }
 
 func TestPropertiesTestTxt(t *testing.T) {
@@ -57,25 +57,25 @@ func TestPropertiesTestTxt(t *testing.T) {
 
 	require.NoError(t, err)
 
-	require.Equal(t, 4, len(p))
-	require.Equal(t, "value = 1", p["key"])
+	require.Equal(t, 4, p.Size())
+	require.Equal(t, "value = 1", p.Get("key"))
 
 	switch value := runtime.GOOS; value {
 	case "linux":
-		require.Equal(t, "is linux", p["which.os"])
+		require.Equal(t, "is linux", p.Get("which.os"))
 	case "windows":
-		require.Equal(t, "is windows", p["which.os"])
+		require.Equal(t, "is windows", p.Get("which.os"))
 	case "darwin":
-		require.Equal(t, "is macosx", p["which.os"])
+		require.Equal(t, "is macosx", p.Get("which.os"))
 	default:
 		require.FailNow(t, "unsupported OS")
 	}
 }
 
 func TestExpandPropsInString(t *testing.T) {
-	aMap := make(Map)
-	aMap["key1"] = "42"
-	aMap["key2"] = "{key1}"
+	aMap := New()
+	aMap.Set("key1", "42")
+	aMap.Set("key2", "{key1}")
 
 	str := "{key1} == {key2} == true"
 
@@ -84,9 +84,9 @@ func TestExpandPropsInString(t *testing.T) {
 }
 
 func TestExpandPropsInString2(t *testing.T) {
-	p := make(Map)
-	p["key2"] = "{key2}"
-	p["key1"] = "42"
+	p := New()
+	p.Set("key2", "{key2}")
+	p.Set("key1", "42")
 
 	str := "{key1} == {key2} == true"
 
@@ -95,9 +95,9 @@ func TestExpandPropsInString2(t *testing.T) {
 }
 
 func TestDeleteUnexpandedPropsFromString(t *testing.T) {
-	p := make(Map)
-	p["key1"] = "42"
-	p["key2"] = "{key1}"
+	p := New()
+	p.Set("key1", "42")
+	p.Set("key2", "{key1}")
 
 	str := "{key1} == {key2} == {key3} == true"
 
@@ -107,8 +107,8 @@ func TestDeleteUnexpandedPropsFromString(t *testing.T) {
 }
 
 func TestDeleteUnexpandedPropsFromString2(t *testing.T) {
-	p := make(Map)
-	p["key2"] = "42"
+	p := New()
+	p.Set("key2", "42")
 
 	str := "{key1} == {key2} == {key3} == true"
 
@@ -122,31 +122,28 @@ func TestPropertiesRedBeearLabBoardsTxt(t *testing.T) {
 
 	require.NoError(t, err)
 
-	require.Equal(t, 83, len(p))
-	require.Equal(t, "Blend", p["blend.name"])
-	require.Equal(t, "arduino:arduino", p["blend.build.core"])
-	require.Equal(t, "0x2404", p["blendmicro16.pid.0"])
+	require.Equal(t, 83, p.Size())
+	require.Equal(t, "Blend", p.Get("blend.name"))
+	require.Equal(t, "arduino:arduino", p.Get("blend.build.core"))
+	require.Equal(t, "0x2404", p.Get("blendmicro16.pid.0"))
 
 	ethernet := p.SubTree("blend")
-	require.Equal(t, "arduino:arduino", ethernet["build.core"])
+	require.Equal(t, "arduino:arduino", ethernet.Get("build.core"))
 }
 
 func TestSubTreeForMultipleDots(t *testing.T) {
-	p := Map{
-		"root.lev1.prop":  "hi",
-		"root.lev1.prop2": "how",
-		"root.lev1.prop3": "are",
-		"root.lev1.prop4": "you",
-		"root.lev1":       "A",
-	}
+	p := New()
+	p.Set("root.lev1.prop", "hi")
+	p.Set("root.lev1.prop2", "how")
+	p.Set("root.lev1.prop3", "are")
+	p.Set("root.lev1.prop4", "you")
+	p.Set("root.lev1", "A")
 
 	lev1 := p.SubTree("root.lev1")
-	require.EqualValues(t, Map{
-		"prop4": "you",
-		"prop":  "hi",
-		"prop2": "how",
-		"prop3": "are",
-	}, lev1)
+	require.Equal(t, "you", lev1.Get("prop4"))
+	require.Equal(t, "hi", lev1.Get("prop"))
+	require.Equal(t, "how", lev1.Get("prop2"))
+	require.Equal(t, "are", lev1.Get("prop3"))
 }
 
 func TestPropertiesBroken(t *testing.T) {
@@ -156,11 +153,10 @@ func TestPropertiesBroken(t *testing.T) {
 }
 
 func TestGetSetBoolean(t *testing.T) {
-	m := Map{
-		"a": "true",
-		"b": "false",
-		"c": "hello",
-	}
+	m := New()
+	m.Set("a", "true")
+	m.Set("b", "false")
+	m.Set("c", "hello")
 	m.SetBoolean("e", true)
 	m.SetBoolean("f", false)
 
@@ -170,17 +166,16 @@ func TestGetSetBoolean(t *testing.T) {
 	require.False(t, m.GetBoolean("d"))
 	require.True(t, m.GetBoolean("e"))
 	require.False(t, m.GetBoolean("f"))
-	require.Equal(t, "true", m["e"])
-	require.Equal(t, "false", m["f"])
+	require.Equal(t, "true", m.Get("e"))
+	require.Equal(t, "false", m.Get("f"))
 }
 
 func TestKeysMethod(t *testing.T) {
-	m := Map{
-		"k1":    "value",
-		"k2":    "othervalue",
-		"k3.k4": "anothevalue",
-		"k5":    "value",
-	}
+	m := New()
+	m.Set("k1", "value")
+	m.Set("k2", "othervalue")
+	m.Set("k3.k4", "anothevalue")
+	m.Set("k5", "value")
 
 	k := m.Keys()
 	sort.Strings(k)
