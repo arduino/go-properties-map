@@ -99,8 +99,8 @@ func init() {
 	}
 }
 
-// New returns a new Map
-func New() *Map {
+// NewMap returns a new Map
+func NewMap() *Map {
 	return &Map{
 		kv: map[string]string{},
 		o:  []string{},
@@ -118,7 +118,7 @@ func Load(filepath string) (*Map, error) {
 	text = strings.Replace(text, "\r\n", "\n", -1)
 	text = strings.Replace(text, "\r", "\n", -1)
 
-	properties := New()
+	properties := NewMap()
 
 	for lineNum, line := range strings.Split(text, "\n") {
 		if err := properties.parseLine(line); err != nil {
@@ -137,7 +137,7 @@ func LoadFromPath(path *paths.Path) (*Map, error) {
 // LoadFromSlice reads a properties file from an array of string
 // and makes a Map out of it
 func LoadFromSlice(lines []string) (*Map, error) {
-	properties := New()
+	properties := NewMap()
 
 	for lineNum, line := range lines {
 		if err := properties.parseLine(line); err != nil {
@@ -180,7 +180,7 @@ func SafeLoadFromPath(path *paths.Path) (*Map, error) {
 func SafeLoad(filepath string) (*Map, error) {
 	_, err := os.Stat(filepath)
 	if os.IsNotExist(err) {
-		return New(), nil
+		return NewMap(), nil
 	}
 
 	properties, err := Load(filepath)
@@ -273,7 +273,7 @@ func (m *Map) FirstLevelOf() map[string]*Map {
 		}
 		keyParts := strings.SplitN(key, ".", 2)
 		if newMap[keyParts[0]] == nil {
-			newMap[keyParts[0]] = New()
+			newMap[keyParts[0]] = NewMap()
 		}
 		value := m.kv[key]
 		newMap[keyParts[0]].Set(keyParts[1], value)
@@ -307,7 +307,7 @@ func (m *Map) FirstLevelOf() map[string]*Map {
 //  },
 func (m *Map) SubTree(rootKey string) *Map {
 	rootKey += "."
-	newMap := New()
+	newMap := NewMap()
 	for _, key := range m.o {
 		if !strings.HasPrefix(key, rootKey) {
 			continue
@@ -371,7 +371,7 @@ func (m Map) Values() []string {
 
 // Clone makes a copy of the Map
 func (m *Map) Clone() *Map {
-	clone := New()
+	clone := NewMap()
 	clone.Merge(m)
 	return clone
 }

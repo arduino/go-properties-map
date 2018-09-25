@@ -73,7 +73,7 @@ func TestPropertiesTestTxt(t *testing.T) {
 }
 
 func TestExpandPropsInString(t *testing.T) {
-	aMap := New()
+	aMap := NewMap()
 	aMap.Set("key1", "42")
 	aMap.Set("key2", "{key1}")
 
@@ -84,7 +84,7 @@ func TestExpandPropsInString(t *testing.T) {
 }
 
 func TestExpandPropsInString2(t *testing.T) {
-	p := New()
+	p := NewMap()
 	p.Set("key2", "{key2}")
 	p.Set("key1", "42")
 
@@ -95,7 +95,7 @@ func TestExpandPropsInString2(t *testing.T) {
 }
 
 func TestDeleteUnexpandedPropsFromString(t *testing.T) {
-	p := New()
+	p := NewMap()
 	p.Set("key1", "42")
 	p.Set("key2", "{key1}")
 
@@ -107,7 +107,7 @@ func TestDeleteUnexpandedPropsFromString(t *testing.T) {
 }
 
 func TestDeleteUnexpandedPropsFromString2(t *testing.T) {
-	p := New()
+	p := NewMap()
 	p.Set("key2", "42")
 
 	str := "{key1} == {key2} == {key3} == true"
@@ -132,7 +132,7 @@ func TestPropertiesRedBeearLabBoardsTxt(t *testing.T) {
 }
 
 func TestSubTreeForMultipleDots(t *testing.T) {
-	p := New()
+	p := NewMap()
 	p.Set("root.lev1.prop", "hi")
 	p.Set("root.lev1.prop2", "how")
 	p.Set("root.lev1.prop3", "are")
@@ -153,7 +153,7 @@ func TestPropertiesBroken(t *testing.T) {
 }
 
 func TestGetSetBoolean(t *testing.T) {
-	m := New()
+	m := NewMap()
 	m.Set("a", "true")
 	m.Set("b", "false")
 	m.Set("c", "hello")
@@ -171,7 +171,7 @@ func TestGetSetBoolean(t *testing.T) {
 }
 
 func TestKeysMethod(t *testing.T) {
-	m := New()
+	m := NewMap()
 	m.Set("k1", "value")
 	m.Set("k2", "othervalue")
 	m.Set("k3.k4", "anothevalue")
